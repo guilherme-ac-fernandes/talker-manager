@@ -3,6 +3,13 @@ const bodyParser = require('body-parser');
 const fs = require('fs/promises');
 const crypto = require('crypto');
 
+// Middlewares
+const authentication = require('./middlewares/authentication');
+const verifyUserName = require('./middlewares/verifyUserName');
+const verifyUserAge = require('./middlewares/verifyUserAge');
+const verifyUserTalkWatchedAt = require('./middlewares/verifyUserTalkWatchedAt');
+const verifyUserTalkRate = require('./middlewares/verifyUserTalkRate');
+
 const app = express();
 app.use(bodyParser.json());
 
@@ -44,7 +51,6 @@ app.get('/talker/:id', async (req, res) => {
 
 app.post('/login', async (req, res) => {
   const { email, password } = req.body;
-  console.log(email, password);
   if (!email) {
     return res.status(400).json({ message: 'O campo "email" é obrigatório' }); 
   }
@@ -62,6 +68,26 @@ app.post('/login', async (req, res) => {
   const token = crypto.randomBytes(8).toString('hex');
   return res.status(200).json({ token });
 });
+
+app.post('/talker', [
+  authentication,
+  verifyUserName,
+  verifyUserAge,
+  verifyUserTalkWatchedAt,
+  verifyUserTalkRate,
+  async (req, res) => {
+    const talkers = await fs.readFile(TALKER_FILE, 'utf-8')
+    .then((content) => JSON.parse(content));
+
+    const newTalker = { ...req.body, id: talkers.length + 1 };
+
+    talkers.push(newTalker);
+
+    await fs.writeFile(TALKER_FILE, JSON.stringify(talkers, null, 2));
+
+    res.status(201).json(newTalker);
+  },
+]);
 
 app.listen(PORT, () => {
   console.log('Online');

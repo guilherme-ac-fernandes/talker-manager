@@ -1,3 +1,5 @@
+// Regex para validação de datas proveniente da StackOverFlow
+// source: https://stackoverflow.com/questions/15491894/regex-to-validate-date-formats-dd-mm-yyyy-dd-mm-yyyy-dd-mm-yyyy-dd-mmm-yyyy
 module.exports = (req, res, next) => {
   const { talk } = req.body;
   if (!talk) {

@@ -109,6 +109,24 @@ app.put('/talker/:id', [
   },
 ]);
 
+app.delete('/talker/:id', [
+  authentication,
+  async (req, res) => {
+    const { id } = req.params;
+    const talkers = await fs.readFile(TALKER_FILE, 'utf-8')
+      .then((content) => JSON.parse(content));
+    const deleteIndex = talkers.findIndex((talk) => Number(talk.id) !== Number(id));
+
+    if (deleteIndex === -1) {
+      return res.status(404).json({ message: 'Palestrante não encontrado!' });
+    }
+    const updateTalkers = talkers.filter((talk) => Number(talk.id) !== Number(id));
+    await fs.writeFile(TALKER_FILE, JSON.stringify(updateTalkers, null, 2));
+
+    res.status(204).end();
+  },
+]);
+
 app.listen(PORT, () => {
   console.log('Online');
 });

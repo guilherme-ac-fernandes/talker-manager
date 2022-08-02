@@ -77,15 +77,35 @@ app.post('/talker', [
   verifyUserTalkRate,
   async (req, res) => {
     const talkers = await fs.readFile(TALKER_FILE, 'utf-8')
-    .then((content) => JSON.parse(content));
-
+      .then((content) => JSON.parse(content));
     const newTalker = { ...req.body, id: talkers.length + 1 };
-
     talkers.push(newTalker);
-
     await fs.writeFile(TALKER_FILE, JSON.stringify(talkers, null, 2));
-
     res.status(201).json(newTalker);
+  },
+]);
+
+app.put('/talker/:id', [
+  authentication,
+  verifyUserName,
+  verifyUserAge,
+  verifyUserTalkWatchedAt,
+  verifyUserTalkRate,
+  async (req, res) => {
+    const { id } = req.params;
+    const talkers = await fs.readFile(TALKER_FILE, 'utf-8')
+      .then((content) => JSON.parse(content));
+
+    const editTalker = { ...req.body, id: Number(id) };
+    const updateTalkers = talkers.map((talker) => {
+      if (Number(talker.id) === Number(id)) {
+        return editTalker;
+      }
+      return talker;
+    });
+    await fs.writeFile(TALKER_FILE, JSON.stringify(updateTalkers, null, 2));
+
+    res.status(200).json(editTalker);
   },
 ]);
 

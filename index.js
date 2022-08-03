@@ -32,13 +32,14 @@ app.get('/talker', async (_req, res) => {
   return res.status(200).json(talkers);
 });
 
-app.get('/talker/:id', authentication, searchQuery, async (req, res) => {
+app.get('/talker/:id', searchQuery, async (req, res) => {
   const { id } = req.params;
   const talkers = await fs.readFile(TALKER_FILE, 'utf-8')
-  .then((content) => JSON.parse(content));
+    .then((content) => JSON.parse(content));
 
   const talker = talkers.find((talk) => Number(talk.id) === Number(id));
   if (!talker) {
+    console.log('errado');
     return res.status(404).json({
       message: 'Pessoa palestrante não encontrada',
     }); 
@@ -115,7 +116,7 @@ app.delete('/talker/:id', [
     const deleteIndex = talkers.findIndex((talk) => Number(talk.id) !== Number(id));
 
     if (deleteIndex === -1) {
-      return res.status(404).json({ message: 'Palestrante não encontrado!' });
+      return res.status(404).json({ message: 'Pessoa palestrante não encontrada' });
     }
     const updateTalkers = talkers.filter((talk) => Number(talk.id) !== Number(id));
     await fs.writeFile(TALKER_FILE, JSON.stringify(updateTalkers, null, 2));

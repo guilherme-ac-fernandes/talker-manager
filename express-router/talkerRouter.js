@@ -1,17 +1,19 @@
 const express = require('express');
 
-const router = express.Router();
-
 // Middlewares
 const authentication = require('../middlewares/authentication');
-const searchQuery = require('../middlewares/searchQuery');
-const verifyUserAge = require('../middlewares/verifyUserAge');
-const verifyUserName = require('../middlewares/verifyUserName');
-const verifyUserTalkRate = require('../middlewares/verifyUserTalkRate');
-const verifyUserTalkWatchedAt = require('../middlewares/verifyUserTalkWatchedAt');
+const {
+  verifyName,
+  verifyAge,
+  verifyTalk,
+  verifyWatchedAt,
+  verifyRate,
+} = require('../middlewares/talker');
 
 // Fs-Util
-const { getTalkers, writeTalkers } = require('../fs-utils');
+const { getTalkers, writeTalkers } = require('../helpers/fs-utils');
+
+const router = express.Router();
 
 router.get('/', async (_req, res) => {
   const talkers = await getTalkers();
@@ -19,7 +21,13 @@ router.get('/', async (_req, res) => {
   return res.status(200).json(talkers);
 });
 
-router.get('/search', authentication, searchQuery);
+router.get('/search', authentication, async (req, res) => {
+  const { q: search } = req.query;
+  const talkers = await getTalkers();
+  const filterTalkers = talkers
+    .filter(({ name }) => name.includes(search));
+  return res.status(200).json(filterTalkers);
+});
 
 router.get('/:id', async (req, res) => {
   const { id } = req.params;
@@ -45,10 +53,12 @@ router.delete('/:id', async (req, res) => {
 });
 
 // Verificações sobre os dados provenientes do body
-router.use(verifyUserName);
-router.use(verifyUserAge);
-router.use(verifyUserTalkWatchedAt);
-router.use(verifyUserTalkRate);
+router.use([verifyName,
+  verifyAge,
+  verifyTalk,
+  verifyWatchedAt,
+  verifyRate,
+]);
 
 router.post('/', async (req, res) => {
   const talkers = await getTalkers();

@@ -3,7 +3,7 @@ const crypto = require('crypto');
 
 const router = express.Router();
 
-// Regex utilizado no projeto TrybeWallet do Guilherme Fernandes
+// Regex do email utilizado no projeto TrybeWallet do Guilherme Fernandes
 // source: https://github.com/guilherme-ac-fernandes/trybewallet/blob/main/src/pages/Login.js
 router.post('/', async (req, res) => {
   const { email, password } = req.body;

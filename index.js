@@ -1,134 +1,24 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const fs = require('fs/promises');
-const crypto = require('crypto');
 
-// Middlewares
-// const verifyIdTalker = require('./middlewares/verifyIdTalker');
-const searchQuery = require('./middlewares/searchQuery');
-const authentication = require('./middlewares/authentication');
-const verifyUserName = require('./middlewares/verifyUserName');
-const verifyUserAge = require('./middlewares/verifyUserAge');
-const verifyUserTalkWatchedAt = require('./middlewares/verifyUserTalkWatchedAt');
-const verifyUserTalkRate = require('./middlewares/verifyUserTalkRate');
-// const talkerRouter = require('./express_router/talker');
+// Router
+const loginRouter = require('./loginRouter');
+const talkerRouter = require('./talkerRouter');
 
 const app = express();
 app.use(bodyParser.json());
 
 const HTTP_OK_STATUS = 200;
 const PORT = '3000';
-const TALKER_FILE = './talker.json';
 
 // não remova esse endpoint, e para o avaliador funcionar
 app.get('/', (_request, response) => {
   response.status(HTTP_OK_STATUS).send();
 });
 
-app.post('/login', async (req, res) => {
-  const { email, password } = req.body;
-  if (!email) {
-    return res.status(400).json({ message: 'O campo "email" é obrigatório' }); 
-  }
-  // Regex utilizado no projeto TrybeWallet do Guilherme Fernandes
-  // source: https://github.com/guilherme-ac-fernandes/trybewallet/blob/main/src/pages/Login.js
-  if (!(email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/))) {
-    return res.status(400).json({ message: 'O "email" deve ter o formato "email@email.com"' }); 
-  }
-  if (!password) {
-    return res.status(400).json({ message: 'O campo "password" é obrigatório' }); 
-  }
-  if (password.length < 6) {
-    return res.status(400).json({ message: 'O "password" deve ter pelo menos 6 caracteres' }); 
-  }
-  const token = crypto.randomBytes(8).toString('hex');
-  return res.status(200).json({ token });
-});
+app.use('/login', loginRouter);
 
-app.get('/talker', async (_req, res) => {
-  const talkers = await fs.readFile(TALKER_FILE, 'utf-8')
-    .then((content) => JSON.parse(content));
-  if (talkers.length === 0) {
-    return res.status(200).json([]);
-  }
-  return res.status(200).json(talkers);
-});
-
-app.get('/talker/search', authentication, searchQuery);
-
-app.get('/talker/:id', async (req, res) => {
-  const { id } = req.params;
-  const talkers = await fs.readFile(TALKER_FILE, 'utf-8')
-    .then((content) => JSON.parse(content));
-
-  const talker = talkers.find((talk) => Number(talk.id) === Number(id));
-  
-  if (!talker) {
-    console.log('errado');
-    return res.status(404).json({
-      message: 'Pessoa palestrante não encontrada',
-    }); 
-  }
-  return res.status(200).json(talker);
-});
-
-app.post('/talker', [
-  authentication,
-  verifyUserName,
-  verifyUserAge,
-  verifyUserTalkWatchedAt,
-  verifyUserTalkRate,
-  async (req, res) => {
-    const talkers = await fs.readFile(TALKER_FILE, 'utf-8')
-      .then((content) => JSON.parse(content));
-    const newTalker = { ...req.body, id: talkers.length + 1 };
-    talkers.push(newTalker);
-    await fs.writeFile(TALKER_FILE, JSON.stringify(talkers, null, 2));
-    res.status(201).json(newTalker);
-  },
-]);
-
-app.put('/talker/:id', [
-  authentication,
-  verifyUserName,
-  verifyUserAge,
-  verifyUserTalkWatchedAt,
-  verifyUserTalkRate,
-  async (req, res) => {
-    const { id } = req.params;
-    const talkers = await fs.readFile(TALKER_FILE, 'utf-8')
-      .then((content) => JSON.parse(content));
-
-    const editTalker = { ...req.body, id: Number(id) };
-    const updateTalkers = talkers.map((talker) => {
-      if (Number(talker.id) === Number(id)) {
-        return editTalker;
-      }
-      return talker;
-    });
-    await fs.writeFile(TALKER_FILE, JSON.stringify(updateTalkers, null, 2));
-
-    res.status(200).json(editTalker);
-  },
-]);
-
-app.delete('/talker/:id', [
-  authentication,
-  async (req, res) => {
-    const { id } = req.params;
-    const talkers = await fs.readFile(TALKER_FILE, 'utf-8')
-      .then((content) => JSON.parse(content));
-    const deleteIndex = talkers.findIndex((talk) => Number(talk.id) !== Number(id));
-
-    if (deleteIndex === -1) {
-      return res.status(404).json({ message: 'Pessoa palestrante não encontrada' });
-    }
-    const updateTalkers = talkers.filter((talk) => Number(talk.id) !== Number(id));
-    await fs.writeFile(TALKER_FILE, JSON.stringify(updateTalkers, null, 2));
-
-    res.status(204).end();
-  },
-]);
+app.use('/talker', talkerRouter);
 
 app.listen(PORT, () => {
   console.log('Online');

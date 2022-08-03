@@ -36,11 +36,9 @@ router.delete('/:id', async (req, res) => {
   const { id } = req.params;
   const talkers = await getTalkers();
   const deleteIndex = talkers.findIndex((talk) => Number(talk.id) !== Number(id));
-
   if (deleteIndex === -1) {
     return res.status(404).json({ message: 'Pessoa palestrante não encontrada' });
   }
-
   const updateTalkers = talkers.filter((talk) => Number(talk.id) !== Number(id));
   await writeTalkers(updateTalkers);
   res.status(204).end();
@@ -63,13 +61,11 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
   const { id } = req.params;
   const talkers = await getTalkers();
-
   const editTalker = { ...req.body, id: Number(id) };
   const updateTalkers = talkers.map((talker) => {
     if (Number(talker.id) === Number(id)) return editTalker;
     return talker;
   });
-
   await writeTalkers(updateTalkers);
   res.status(200).json(editTalker);
 });

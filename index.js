@@ -4,12 +4,14 @@ const fs = require('fs/promises');
 const crypto = require('crypto');
 
 // Middlewares
+// const verifyIdTalker = require('./middlewares/verifyIdTalker');
 const searchQuery = require('./middlewares/searchQuery');
 const authentication = require('./middlewares/authentication');
 const verifyUserName = require('./middlewares/verifyUserName');
 const verifyUserAge = require('./middlewares/verifyUserAge');
 const verifyUserTalkWatchedAt = require('./middlewares/verifyUserTalkWatchedAt');
 const verifyUserTalkRate = require('./middlewares/verifyUserTalkRate');
+// const talkerRouter = require('./express_router/talker');
 
 const app = express();
 app.use(bodyParser.json());
@@ -21,30 +23,6 @@ const TALKER_FILE = './talker.json';
 // não remova esse endpoint, e para o avaliador funcionar
 app.get('/', (_request, response) => {
   response.status(HTTP_OK_STATUS).send();
-});
-
-app.get('/talker', async (_req, res) => {
-  const talkers = await fs.readFile(TALKER_FILE, 'utf-8')
-    .then((content) => JSON.parse(content));
-  if (talkers.length === 0) {
-    return res.status(200).json([]);
-  }
-  return res.status(200).json(talkers);
-});
-
-app.get('/talker/:id', searchQuery, async (req, res) => {
-  const { id } = req.params;
-  const talkers = await fs.readFile(TALKER_FILE, 'utf-8')
-    .then((content) => JSON.parse(content));
-
-  const talker = talkers.find((talk) => Number(talk.id) === Number(id));
-  if (!talker) {
-    console.log('errado');
-    return res.status(404).json({
-      message: 'Pessoa palestrante não encontrada',
-    }); 
-  }
-  return res.status(200).json(talker);
 });
 
 app.post('/login', async (req, res) => {
@@ -65,6 +43,33 @@ app.post('/login', async (req, res) => {
   }
   const token = crypto.randomBytes(8).toString('hex');
   return res.status(200).json({ token });
+});
+
+app.get('/talker', async (_req, res) => {
+  const talkers = await fs.readFile(TALKER_FILE, 'utf-8')
+    .then((content) => JSON.parse(content));
+  if (talkers.length === 0) {
+    return res.status(200).json([]);
+  }
+  return res.status(200).json(talkers);
+});
+
+app.get('/talker/search', authentication, searchQuery);
+
+app.get('/talker/:id', async (req, res) => {
+  const { id } = req.params;
+  const talkers = await fs.readFile(TALKER_FILE, 'utf-8')
+    .then((content) => JSON.parse(content));
+
+  const talker = talkers.find((talk) => Number(talk.id) === Number(id));
+  
+  if (!talker) {
+    console.log('errado');
+    return res.status(404).json({
+      message: 'Pessoa palestrante não encontrada',
+    }); 
+  }
+  return res.status(200).json(talker);
 });
 
 app.post('/talker', [

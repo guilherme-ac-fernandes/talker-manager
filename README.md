@@ -30,7 +30,7 @@ npm start
 | `POST` | http://localhost:3000/login |
 
 
-Na requisição é necessária informar o seguinte JSON:
+Na requisição é necessário informar o seguinte JSON:
 
 ```
 {

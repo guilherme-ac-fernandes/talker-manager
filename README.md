@@ -25,9 +25,9 @@ npm start
 
 #### Login
 
-| Método | URL |
-|---|---|
-| `POST` | http://localhost:3000/login |
+| Método | Funcionalidade | URL |
+|---|---|---|
+| `POST` | Realiza login do usuário e retorna o token | http://localhost:3000/login |
 
 
 Na requisição é necessário informar o seguinte JSON:
@@ -41,14 +41,14 @@ Na requisição é necessário informar o seguinte JSON:
 
 #### Talker
 
-| Método | URL |
-|---|---|
-| `GET` | http://localhost:3000/talker |
-| `GET` | http://localhost:3000/talker/:id |
-| `GET` | http://localhost:3000/talker/search |
-| `PUT` | http://localhost:3000/talker/:id |
-| `POST` | http://localhost:3000/talker |
-| `DELETE` | http://localhost:3000/talker/:id |
+| Método | Funcionalidade | URL |
+|---|---|---|
+| `GET` | Retorna os dados de todos os palestrantes, caso existam | http://localhost:3000/talker |
+| `GET` | Retorna os dados de um palestrante específico, caso exista | http://localhost:3000/talker/:id |
+| `GET` | Filtra pelo nome dos palestrantes em relação os caracteres passada como query | http://localhost:3000/talker/search |
+| `PUT` | Altera os dados de um palestrante específico | http://localhost:3000/talker/:id |
+| `POST` | Cria um novo palestrante | http://localhost:3000/talker |
+| `DELETE` | Deleta um palestrante específico | http://localhost:3000/talker/:id |
 
 
 

@@ -1,6 +1,6 @@
 # Talker Manager 🗣
 
-Consiste em uma API constrída para cadastro de palestrantes com a possibilidade de cadastrar, visualizar, pesquisar, editar e excluir informações. 
+Consiste em uma API construída para cadastro de palestrantes com a possibilidade de cadastrar, visualizar, pesquisar, editar e excluir informações. 
 
 * Contruída com Node.js, Express, MySQL e Docker
 * Aplicação que obtém informações utilizando o módulo `fs`

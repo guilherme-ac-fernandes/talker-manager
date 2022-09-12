@@ -13,6 +13,7 @@ Consiste em uma API construída para cadastro de palestrantes com a possibilidad
 docker-compose up -d
 docker attach talker_manager
 npm install // para instalar as dependências
+docker-compose down // para parar completamente a aplicação
 ```
 
 E utilize o comando a seguir para executar a aplicação:

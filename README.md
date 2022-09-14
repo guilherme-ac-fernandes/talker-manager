@@ -1,4 +1,4 @@
-# Talker Manager 🗣
+# Projeto Talker Manager 🗣
 
 Consiste em uma API construída para cadastro de palestrantes com a possibilidade de cadastrar, visualizar, pesquisar, editar e excluir informações. 
 
